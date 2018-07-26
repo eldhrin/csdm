@@ -49,35 +49,8 @@ var post = {
 };
 
 //CONNECT TO DB
-app.route('/test').get(function (req, res) {
-    mongoose.connect(url, function (err, db) {
-        var test = db.collection('N424').find().toArray(function(err, result){
-            if(err) throw err;
-            console.log(result);
-            res.json(test);
-            str = JSON.stringify(test);
-        });
-        res.json({message: str});
-        db.close();
-    });
-});
-//web port for db is localhost 28017
-//     if (err) {
-//         console.log("Unable to connect to db", err);
-//     }
-//     else {
-//         var ins = db.collection('N431');
-//         console.log("Connection successful");
-//         ins.collection.save(post, function (err, result) {
-//             if (err) {
-//                 console.log("Error", err);
-//             }
-//             else {
-//                 console.log("Success, inserted into collection ", result.length, result)
-//             }
-//         });
-//     }
-// })
+mongoose.connect(url, function (err, db) {
+
 
 
 // *** ROUTES *** \\
@@ -95,27 +68,23 @@ app.route('/test').get(function (req, res) {
         next();
     });
 
-//TEST ROUTE localhost:8080/api
-    apiRouter.get('/', function (req, res) {
-        res.json({message: 'Welcome to the api'});
+
+
+//ROOMS
+    //localhost:8080/:name
+    app.route('/:name').get(function (req, res) {
+        db.collection(req.params.name).find().toArray(function (err, result) {
+            if (err) throw err;
+            console.log(result);
+            res.send(result);
+        });
     });
 
-//REGISTER THE ROUTES
-    app.use('/api', apiRouter);
-
-
-//gets all rooms localhost:8080/api/rooms
-    apiRouter.route('/rooms')
-        .get(function (req, res) {
-            Room.find({}, function (err, rooms) {
-                if (err) res.send(err);
-
-                res.json(rooms);
-            })
-        });
+//gets all rooms localhost:8080/all
+    //TODO
 
 // START THE SERVER
     app.listen(port);
     console.log(port);
-
+});
 //localhost:8080
