@@ -10,6 +10,9 @@ var mongoose = require('mongoose');
 var port = process.env.PORT || 8080;
 var url = "mongodb://localhost:27017/csdm";
 var Room = require('./room');
+var path = require('path');
+var output = "";
+
 
 
 //CONFIGURATION
@@ -27,9 +30,9 @@ app.use(bodyParser.json());
 //LOG REQUESTS TO CONSOLE
 app.use(morgan('dev'));
 
+
 var currTime = new Date(); //current date
 var str = "test";
-
 
 var post = {
     date: currTime,
@@ -50,14 +53,14 @@ var post = {
 
 //CONNECT TO DB
 mongoose.connect(url, function (err, db) {
-
+console.log("Connected to DB");
 
 
 // *** ROUTES *** \\
 
 //Basic route
-    app.get('/', function (req, res) {
-        res.send('Welcome to the home page!');
+    app.get('/test', function (req, res) {
+        res.sendFile(path.join(__dirname + '/views/view/test.html'));
     });
 
 //express router
@@ -76,9 +79,12 @@ mongoose.connect(url, function (err, db) {
         db.collection(req.params.name).find().toArray(function (err, result) {
             if (err) throw err;
             console.log(result);
-            res.send(result);
+            output = JSON.toString(result);
+            res.render(output);
         });
     });
+
+
 
 //gets all rooms localhost:8080/all
     //TODO
