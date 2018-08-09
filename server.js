@@ -59,7 +59,7 @@ console.log("Connected to DB");
 // *** ROUTES *** \\
 
 //Basic route
-    app.get('/test', function (req, res) {
+    app.get('/', function (req, res) {
         res.sendFile(path.join(__dirname + '/views/view/test.html'));
     });
 
@@ -76,11 +76,15 @@ console.log("Connected to DB");
 //ROOMS
     //localhost:8080/:name
     app.route('/:name').get(function (req, res) {
-        db.collection(req.params.name).find().toArray(function (err, result) {
+        var room = req.params.name;
+        room = room.toUpperCase(); //changes room string to uppercase so it can read from db
+        db.collection(room).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
             if (err) throw err;
-            console.log(result);
-            output = JSON.toString(result);
-            res.render(output);
+            output = JSON.stringify(result,null,10);
+            document.getElementsByClassName('json');
+            console.log(output);
+            res.sendFile(path.join(__dirname + '/views/view/index.html'));
+            res.send(output);
         });
     });
 

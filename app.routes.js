@@ -8,7 +8,7 @@ angular.module('routerRoutes', ['ngRoute'])
 
     //home page
         .when('add/test',{
-            templateUrl  : 'view/index.html',
+            templateUrl  : 'views/view/index.html',
             controller   : 'indexController',
             controllerAs : 'home'
         });
