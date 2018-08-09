@@ -80,8 +80,8 @@ console.log("Connected to DB");
         room = room.toUpperCase(); //changes room string to uppercase so it can read from db
         db.collection(room).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
             if (err) throw err;
-            output = JSON.stringify(result,null,10);
-            document.getElementsByClassName('json');
+            //output = JSON.stringify(result,null,10);
+            //document.getElementsByClassName('json');
             console.log(output);
             res.sendFile(path.join(__dirname + '/views/view/index.html'));
             res.send(output);
