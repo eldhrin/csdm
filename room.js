@@ -19,8 +19,11 @@ RoomSchema = new RoomSchema({
     lights: {type: Boolean, required: true},                                //check lights are working as intended
     air_con: {type: Boolean, required: true},                               //check air con is working
     PC_boot: {type: Boolean, required: true},                               //check all pcs in the room boot
-    cables: {type: Boolean, required: true}                                 //check if cables are plugged in
+    cables: {type: Boolean, required: true},                                //check if cables are plugged in
+    comments:{type:String, required: false}                                 //any comments
 });
 
-RoomSchema.pre('save');
+RoomSchema.pre('save', function(next){
+    var user = this;
+});
 module.exports = mongoose.model('room',RoomSchema);
