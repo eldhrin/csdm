@@ -8,11 +8,13 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var mongoose = require('mongoose');
 var port = process.env.PORT || 8080;
-var url = "mongodb://localhost:27017/csdm";
+var url = "mongodb://localhost:27017/csdm"; //localDB
 var Room = require('./room');
 var path = require('path');
 var output = "";
 var name = "";
+var bool = false;
+var dbList = ['N533', 'N530', 'N529', 'N528', 'N527', 'N525', 'N519', 'N431', 'N430', 'N428A', 'N427', 'N424']; //HACKY
 
 
 
@@ -21,13 +23,6 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 
-// //COOKIES
-// app.use(function(req,res,nest){
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-//     res.setHeader('Access-Control-Allow-Headers','X-Requested-With, content-type, Authorization');
-//     next();
-// });
 
 //LOG REQUESTS TO CONSOLE
 app.use(morgan('dev'));
@@ -36,6 +31,8 @@ app.use(morgan('dev'));
 var currTime = new Date(); //current date
 var str = "test";
 
+
+//test data
 // var post = {
 //     date: currTime,
 //     room_ID: 'N533',
@@ -55,14 +52,14 @@ var str = "test";
 
 //CONNECT TO DB
 mongoose.connect(url, function (err, db) {
-console.log("Connected to DB");
+    console.log("Connected to DB");
 
 
 // *** ROUTES *** \\
 
-//Basic route
+//TEST ROUTE
     app.get('/t', function (req, res) {
-        res.sendFile(path.join(__dirname + '/views/view/index.html'));
+        res.sendFile(path.join(__dirname + '/views/view/test.html'));
     });
 
 //express router
@@ -76,56 +73,94 @@ console.log("Connected to DB");
 
 
 //ROOMS
+    //shows data from the selected room
     //localhost:8080/:name/show
     app.route('/:name/show').get(function (req, res) {
-        var room = req.params.name;
-        name = room;
-        room = room.toUpperCase(); //changes room string to uppercase so it can read from db
-        db.collection(room).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
-            if (err) throw err;
-            output = JSON.stringify(result,null,"\n");
-            console.log(output);
-            //res.writeHead(200, {'Content-Type': 'text/html'})
-            res.sendFile(path.join(__dirname + '/views/view/test.html'));
-            res.end(output);
-        });
+        name = req.params.name;
+        name = name.toUpperCase(); //changes room string to uppercase so it can read from db
+        isColl(name);
+        //bool is true, collection exists so data can be shown
+        if(bool === true){
+            db.collection(name).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
+                if (err) throw err;
+                output = JSON.stringify(result, null, "\n"); //output converted from JSON array to string
+                console.log(output);
+                res.sendFile(path.join(__dirname + '/views/view/test.html'));// output sent to test.html to display
+                res.end(output);
+            });
+        }
+        //if bool is false, no collection with the name exists
+        else{
+            res.end("Room does not exist");
+            console.log("Room does not exist");
+            }
     });
 
+    //add data for the room
     app.get('/:name', function(req,res){
         name = req.params.name;
         name = name.toUpperCase();
-        res.sendFile(path.join(__dirname + '/views/view/index.html'));
+        isColl(name);
+        if(bool === true) {
+            res.sendFile(path.join(__dirname + '/views/view/index.html'));
+        }
+        else{
+            res.end("Room does not exist");
+            console.log("Room does not exist");
+        }
     });
 
-    app.post('/add', function(req,res,next){
-        db.collection(name).insert({
+    //posts data to the db and relevant collection
+    app.post('/add', function(req,res,next) {
+        isColl(name);
+        if (bool === true) {
+            //gets values from html form and inserts in db
+            db.collection(name).insert({
 
-            date        : currTime,
-            room_ID     : name,
-            POD_boot    : req.body.POD_boot,
-            proj_screen : req.body.proj_screen,
-            PC_sound    : req.body.PC_sound,
-            ltop_plugin : req.body.ltop_plugin,
-            ltop_sound  : req.body.ltop_sound,
-            doc_view    : req.body.doc_view,
-            mic_sound   : req.body.mic_sound,
-            tidy        : req.body.tidy,
-            lights      : req.body.lights,
-            air_con     : req.body.air_con,
-            PC_boot     : req.body.PC_boot,
-            comments    : req.body.comments
+                    date: currTime,
+                    room_ID: name,
+                    POD_boot: req.body.POD_boot,
+                    proj_screen: req.body.proj_screen,
+                    PC_sound: req.body.PC_sound,
+                    ltop_plugin: req.body.ltop_plugin,
+                    ltop_sound: req.body.ltop_sound,
+                    doc_view: req.body.doc_view,
+                    mic_sound: req.body.mic_sound,
+                    tidy: req.body.tidy,
+                    lights: req.body.lights,
+                    air_con: req.body.air_con,
+                    PC_boot: req.body.PC_boot,
+                    comments: req.body.comments
 
+                }
+                , function (err, result) {
+                    if (err) {
+                        res.end("No room with that name exists");
+                    }
+                    res.sendFile(__dirname + '/views/view/test.html');
+                    console.log("item successfully added");
+                    res.end("Successfully Added");
+                });
+        }
+        else {
+            res.send("Room does not exist");
+            console.log("Room does not exist");
+        }
+    });
+
+    //check if the name of the room is in the collection
+    function isColl(name){
+        //loops through array of possible room names
+        //HACKY, SHOULD LOOK THROUGH COLLECTIONS IN DB
+        for(var i = 0; i< dbList.length; i++){
+            if(name === dbList[i]){
+                bool = true; //bool is true if exists
             }
-            ,function(err, result){
-            res.sendFile(__dirname + '/views/view/test.html');
-            console.log("item successfully added");
-            res.end("Successfully Added");
-        });
-    });
+        }
+        //bool is false otherwise
+        return bool;
+    }
 
-
-//gets all rooms localhost:8080/all
-    //TODO
 
 // START THE SERVER
     app.listen(port);
