@@ -96,6 +96,7 @@ mongoose.connect(url, function (err, db) {
             }
     });
 
+
     //add data for the room
     app.get('/:name', function(req,res){
         name = req.params.name;
@@ -154,7 +155,7 @@ mongoose.connect(url, function (err, db) {
         //HACKY, SHOULD LOOK THROUGH COLLECTIONS IN DB
         for(var i = 0; i< dbList.length; i++){
             if(name === dbList[i]){
-                bool = true; //bool is true if exists
+                bool = true;
             }
         }
         //bool is false otherwise
