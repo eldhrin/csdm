@@ -71,17 +71,17 @@ mongoose.connect(url, function (err, db) {
     });
 
 
-
 //ROOMS
     //shows data from the selected room
     //localhost:8080/:name/show
     app.route('/:name/show').get(function (req, res) {
         name = req.params.name;
+        var test = "";
         name = name.toUpperCase(); //changes room string to uppercase so it can read from db
         isColl(name);
         //bool is true, collection exists so data can be shown
         if(bool === true){
-            db.collection(name).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
+           db.collection(name).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
                 if (err) throw err;
                 output = JSON.stringify(result, null, "\n"); //output converted from JSON array to string
                 console.log(output);
@@ -116,33 +116,27 @@ mongoose.connect(url, function (err, db) {
         isColl(name);
         if (bool === true) {
             //gets values from html form and inserts in db
-            db.collection(name).insert({
-
-                    date: currTime,
-                    room_ID: name,
-                    POD_boot: req.body.POD_boot,
-                    proj_screen: req.body.proj_screen,
-                    PC_sound: req.body.PC_sound,
-                    ltop_plugin: req.body.ltop_plugin,
-                    ltop_sound: req.body.ltop_sound,
-                    doc_view: req.body.doc_view,
-                    mic_sound: req.body.mic_sound,
-                    tidy: req.body.tidy,
-                    lights: req.body.lights,
-                    air_con: req.body.air_con,
-                    PC_boot: req.body.PC_boot,
-                    comments: req.body.comments
-
-                }
-                , function (err, result) {
-                    if (err) {
-                        res.end("No room with that name exists");
-                    }
+            db.collection(name).update({},
+                {$set: {
+                    "date": currTime,
+                    "room_ID": name,
+                    "POD_boot": req.body.POD_boot,
+                    "proj_screen": req.body.proj_screen,
+                    "PC_sound": req.body.PC_sound,
+                    "ltop_plugin": req.body.ltop_plugin,
+                    "ltop_sound": req.body.ltop_sound,
+                    "doc_view": req.body.doc_view,
+                    "mic_sound": req.body.mic_sound,
+                    "tidy": req.body.tidy,
+                    "lights": req.body.lights,
+                    "air_con": req.body.air_con,
+                    "PC_boot": req.body.PC_boot,
+                    "comments": req.body.comments
+                }}, {multi:true});
                     res.sendFile(__dirname + '/views/view/test.html');
-                    console.log("item successfully added");
-                    res.end("Successfully Added");
-                });
-        }
+                    console.log("item successfully updated");
+                    res.end("Successfully Updated");
+                }
         else {
             res.send("Room does not exist");
             console.log("Room does not exist");
@@ -156,6 +150,7 @@ mongoose.connect(url, function (err, db) {
         for(var i = 0; i< dbList.length; i++){
             if(name === dbList[i]){
                 bool = true;
+                break;
             }
         }
         //bool is false otherwise
