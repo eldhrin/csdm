@@ -6,8 +6,8 @@ var RoomSchema = mongoose.Schema;
 
 //schema
 RoomSchema = new RoomSchema({
-    date: {type:Date, required:true, index:{unique: true}},                 //generates the current datetime
-    room_ID:{type:String, required:true, index:{unique: true}},             //room number
+    _id:{type:String, required:true, index:{unique: true}},
+    date: {type:Date, required:true, index:{unique: true}},                 //generates the current datetime     //room number
     POD_boot: {type: Boolean, required: true},                              //podium pc boot up check
     proj_screen: {type: Boolean, required: true},                           //projector screen working check
     PC_sound: {type: Boolean, required: true},                              // podium pc sound check

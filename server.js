@@ -11,6 +11,7 @@ var port = process.env.PORT || 8080;
 var url = "mongodb://localhost:27017/csdm"; //localDB
 var Room = require('./room');
 var path = require('path');
+var tableify = require('tableify');
 var output = "";
 var name = "";
 var bool = false;
@@ -75,26 +76,32 @@ mongoose.connect(url, function (err, db) {
     //shows data from the selected room
     //localhost:8080/:name/show
     app.route('/:name/show').get(function (req, res) {
+
+
         name = req.params.name;
         var test = "";
         name = name.toUpperCase(); //changes room string to uppercase so it can read from db
         isColl(name);
         //bool is true, collection exists so data can be shown
         if(bool === true){
-           db.collection(name).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
+            db.collection(name).find().toArray(function (err, result) {//search db for existing room, return err if room does not exist
                 if (err) throw err;
+                var resu = tableify(result); // TABLEIFY
                 output = JSON.stringify(result, null, "\n"); //output converted from JSON array to string
                 console.log(output);
-                res.sendFile(path.join(__dirname + '/views/view/test.html'));// output sent to test.html to display
-                res.end(output);
+                console.log(resu);
+                res.sendFile(path.join(__dirname + '/views/view/index.html'));// output sent to test.html to display
+               // res.end(output);
+                res.end(resu);
             });
         }
         //if bool is false, no collection with the name exists
         else{
             res.end("Room does not exist");
             console.log("Room does not exist");
-            }
+        }
     });
+
 
 
     //add data for the room
@@ -119,7 +126,6 @@ mongoose.connect(url, function (err, db) {
             db.collection(name).update({},
                 {$set: {
                     "date": currTime,
-                    "room_ID": name,
                     "POD_boot": req.body.POD_boot,
                     "proj_screen": req.body.proj_screen,
                     "PC_sound": req.body.PC_sound,
